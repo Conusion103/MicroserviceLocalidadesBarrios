@@ -1,0 +1,1 @@
+export class LocalidadesNotFound extends Error{}

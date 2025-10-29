@@ -1,0 +1,66 @@
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository, QueryFailedError } from "typeorm";
+import { LocalidadEntity } from "./entity/localidades.entity.js";
+import { CreateLocalidadDto } from "./dtos/create-localidad.dto.js";
+import { UpdateLocalidadDto } from "./dtos/update-localidad.dto.js";
+
+@Injectable()
+export class LocalidadService {
+
+    constructor(
+        @InjectRepository(LocalidadEntity)
+        private readonly localidadRepository: Repository<LocalidadEntity>,
+    ) { }
+
+    async findAll(): Promise<LocalidadEntity[]> {
+        return this.localidadRepository.find();
+    }
+
+    async findOne(id: number): Promise<LocalidadEntity> {
+        try {
+            return await this.localidadRepository.findOneOrFail({ where: { id } });
+        } catch (error) {
+            throw new NotFoundException(`Localidad con id: ${id} no encontrada`);
+        }
+    }
+
+    async create(createLocalidadDto: CreateLocalidadDto): Promise<LocalidadEntity> {
+        const existingLocalidad = await this.localidadRepository.findOneBy({ nombre: createLocalidadDto.nombre });
+        if (existingLocalidad) {
+            throw new ConflictException(`Ya existe una localidad con el nombre ${createLocalidadDto.nombre}`);
+        }
+
+        const newLocality = this.localidadRepository.create(createLocalidadDto);
+
+        try {
+            return await this.localidadRepository.save(newLocality);
+        } catch (error) {
+            if (error instanceof QueryFailedError) {
+                throw new BadRequestException('Error en los datos: asegúrate de que todos los campos obligatorios estén completos y correctos');
+            }
+            throw error;
+        }
+    }
+
+    async update(id: number, updateLocalidadDto: UpdateLocalidadDto): Promise<LocalidadEntity> {
+        const locality = await this.findOne(id);
+        Object.assign(locality, updateLocalidadDto);
+
+        try {
+            return await this.localidadRepository.save(locality);
+        } catch (error) {
+            if (error instanceof QueryFailedError) {
+                throw new BadRequestException('Error al actualizar: revisa los datos enviados');
+            }
+            throw error;
+        }
+    }
+
+    async remove(id: number): Promise<void> {
+        const result = await this.localidadRepository.delete(id);
+        if (result.affected === 0) {
+            throw new NotFoundException(`Localidad con id: ${id} no fue encontrada`);
+        }
+    }
+}

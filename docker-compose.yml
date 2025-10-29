@@ -1,0 +1,40 @@
+services:
+  db:
+    # Use a PostGIS-enabled image so the `postgis` extension and `geometry` type
+    # are available. Use the `latest` tag which points to a maintained PostGIS
+    # image compatible with recent PostgreSQL versions.
+    image: postgis/postgis:latest
+    container_name: db_city
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      # Use the standard PostgreSQL data directory so initialization scripts
+      # (including extension creation) work as expected.
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT}:5432"
+    networks:
+      - city_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+networks:
+  city_network:
+    driver: bridge
+
+volumes:
+  postgres_data:

@@ -1,0 +1,1 @@
+export class BarrioNotFound extends Error{}
