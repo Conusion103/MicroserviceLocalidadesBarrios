@@ -16,20 +16,21 @@ export interface ILocalidadRepository {
    * Asocia un barrio a una localidad.
    * No realiza validaciones de negocio (eso va en la capa de aplicación).
    */
-  addBarrioToLocalidad(localidadId: string, barrioId: string): Promise<void>;
+  addBarrioToLocalidad(localidadId: number, barrioId: number): Promise<void>;
 
   /**
    * Elimina la asociación entre una localidad y un barrio.
    */
-  removeBarrioFromLocalidad(localidadId: string, barrioId: string): Promise<void>;
+  removeBarriosFromLocalidad(localidadId: number, barrioIds: number[]): Promise<void>;
+
 
   /**
    * Obtiene todos los barrios asociados a una localidad.
    */
-  getBarriosByLocalidad(localidadId: string): Promise<Barrio[]>;
+  getBarriosByLocalidad(localidadId: number): Promise<Barrio[]>;
 
   /**
    * Reemplaza completamente la lista de barrios asociados a una localidad.
    */
-  replaceBarriosInLocalidad(localidadId: string, barrioIds: string[]): Promise<void>;
+  replaceBarriosInLocalidad(localidadId: number, barrioIds: number[]): Promise<void>;
 }

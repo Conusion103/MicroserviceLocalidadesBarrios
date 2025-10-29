@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import * as wkx from "wkx";
 
 import { IBarrioRepository } from "../../Domain/Interfaces/IBarrioRepository.js";
@@ -103,4 +103,14 @@ export class BarrioRepository implements IBarrioRepository {
 
     return entity ? this.mapToDomain(entity) : null;
   }
+
+  // En la interfaz
+
+async getManyByIds(ids: number[]): Promise<Barrio[]> {
+  const entities = await this.repository.find({
+    where: { id: In(ids) },
+  });
+  return entities.map((e) => this.mapToDomain(e));
+}
+
 }

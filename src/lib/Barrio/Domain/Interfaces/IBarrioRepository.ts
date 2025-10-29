@@ -8,6 +8,7 @@ export interface IBarrioRepository {
     edit(barrio: Barrio): Promise<void>;
     delete(id: BarrioId): Promise<void>;
     findByName(nombre: string): Promise<Barrio | null>;
+    getManyByIds(ids: number[]): Promise<Barrio[]>;
 }
 
 
